@@ -112,11 +112,14 @@ function App() {
               <TokenLine asset="USDC" sendBalance={setBalance} />
             </tbody>
           </table>
+        </section>
+        <section className="m-auto mt-12 rounded-lg border border-gray-300 bg-white shadow-sm md:w-3/5">
           <p className="mt-3 ml-3 text-xl">Simulate retirement</p>
           <p className="ml-3 mt-3 text-2xl">
             With a balance of {balance} USDC, you can already prepare your
-            retirement. Fill the below sentence to have a more precise track to
-            your post-work lifestyle.
+            retirement.
+            <br /> Fill the below sentence to have a more precise track to your
+            post-work lifestyle.
           </p>
         </section>
         {vault && (
