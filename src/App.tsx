@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import VaultLine, { VaultInfo } from "./components/VaultLine";
 import ActionModal from "./components/ActionModal";
 import TokenLine from "./components/TokenLine";
 import ConnectButtonWrapper from "./components/ConnectButton";
+import Histogram from "react-chart-histogram";
 
 function App() {
   const [vaults, setVaults] = useState<VaultInfo[]>([
@@ -12,6 +13,68 @@ function App() {
   ]);
   const [vault, setVault] = useState<VaultInfo | undefined>(undefined);
   const [balance, setBalance] = useState<number>();
+  const [age, setAge] = useState("25");
+  const [current, setCurrent] = useState("0");
+  const [future, setFuture] = useState("200");
+  const [gains, setGains] = useState<number[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
+
+  const handleAge = (newAge: string) => {
+    if (isNaN(parseInt(newAge))) {
+      setAge("");
+      return;
+    }
+
+    setAge(newAge);
+  };
+
+  const handleCurrent = (newCurrent: string) => {
+    if (isNaN(parseInt(newCurrent))) {
+      setCurrent("");
+      return;
+    }
+
+    setCurrent(newCurrent);
+  };
+
+  const handleFuture = (newFuture: string) => {
+    if (isNaN(parseInt(newFuture))) {
+      setFuture("");
+      return;
+    }
+
+    setFuture(newFuture);
+  };
+
+  const computeRetirement = (years: number) => {
+    // FV = y * ((1 + p/12)^n - 1) * (1 + p/12) / (p/12) + x * (1 + p/12)^n
+    const x = parseFloat(current);
+    const y = parseFloat(future);
+    const n = years * 12;
+    const p = 0.05 / 12;
+    const FV =
+      ((y * ((1 + p / 12) ^ (n - 1)) * (1 + p / 12)) / (p / 12) +
+        x * (1 + p / 12)) ^
+      n;
+    const futureValue =
+      y * (((Math.pow(1 + p, n) - 1) * (1 + p)) / p) + x * Math.pow(1 + p, n);
+    console.log(futureValue);
+    return futureValue;
+  };
+
+  useEffect(() => {
+    const newLabels = [];
+    const newGains = [];
+    for (let i = 30; i <= 60; i = i + 10) {
+      console.log("trying ", i);
+      if (i - parseInt(age) > 0) {
+        newLabels.push(`Age ${i}`);
+        newGains.push(computeRetirement(i - parseInt(age)));
+      }
+    }
+    setLabels(newLabels);
+    setGains(newGains);
+  }, [age, current, future]);
 
   const sortVaults = (attr: string) => {
     switch (attr) {
@@ -38,7 +101,7 @@ function App() {
   };
 
   return (
-    <div className="h-screen bg-[#F2F3F6]">
+    <div className="h-screen overflow-auto bg-[#F2F3F6]">
       <header className="App-header">
         <p className="hidden pt-3 text-center text-3xl md:block">
           DeFi Pooling
@@ -113,14 +176,62 @@ function App() {
             </tbody>
           </table>
         </section>
-        <section className="m-auto mt-12 rounded-lg border border-gray-300 bg-white shadow-sm md:w-3/5">
+        <section className="m-auto my-12 rounded-lg border border-gray-300 bg-white shadow-sm md:w-3/5">
           <p className="mt-3 ml-3 text-xl">Simulate retirement</p>
+          {balance !== 0 && (
+            <p className="ml-3 mt-3 text-2xl">
+              With a balance of {balance} USDC, you can already prepare your
+              retirement.
+            </p>
+          )}
           <p className="ml-3 mt-3 text-2xl">
-            With a balance of {balance} USDC, you can already prepare your
-            retirement.
-            <br /> Fill the below sentence to have a more precise track to your
+            Fill the below sentence to have a more precise track to your
             post-work lifestyle.
           </p>
+          <p className="my-3 ml-3 text-2xl">
+            I am
+            <input
+              type="text"
+              value={age}
+              onChange={(e) => handleAge(e.target.value)}
+              className="mx-1 w-8 border-b border-black"
+            />
+            years old, I can currently invest
+            <input
+              type="text"
+              value={current}
+              onChange={(e) => handleCurrent(e.target.value)}
+              className="mx-1 w-36 border-b border-black"
+            />
+            USDC and I can add
+            <input
+              type="text"
+              value={future}
+              onChange={(e) => handleFuture(e.target.value)}
+              className="mx-1 w-36 border-b border-black"
+            />
+            USDC every month.
+          </p>
+          <div className="m-auto w-fit">
+            <Histogram
+              xLabels={labels}
+              yValues={gains}
+              width="700"
+              height="300"
+              options={{ fillColor: "#00FF00", strokeColor: "#FFFFFF" }}
+            />
+          </div>
+
+          <div className="m-auto w-fit text-xl">
+            {labels.map((label, index) => (
+              <p className="mb-1">
+                By {label}, you'll have{" "}
+                <span className="font-bold">
+                  {gains[index].toFixed(2)} USDC
+                </span>
+              </p>
+            ))}
+          </div>
         </section>
         {vault && (
           <ActionModal close={() => setVault(undefined)} vault={vault} />
