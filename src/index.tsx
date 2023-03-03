@@ -13,12 +13,23 @@ import {
   polygonMumbai,
 } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { providers } from "ethers";
 
 const { chains, provider } = configureChains(
   [goerli, polygonMumbai],
-  [alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_KEY! })]
+  [
+    alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_KEY! }),
+    jsonRpcProvider({
+      rpc: (chain) => {
+        return {
+          http: "https://goerli.gateway.tenderly.co/2NBqOapLW0NdoZCP0F49Xi",
+        };
+      },
+    }),
+  ]
 );
 
 const { connectors } = getDefaultWallets({
