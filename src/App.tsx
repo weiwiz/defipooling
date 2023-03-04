@@ -278,7 +278,11 @@ function App() {
           </div>
         </section>
         {vault && (
-          <ActionModal close={() => setVault(undefined)} vault={vault} />
+          <ActionModal
+            close={() => setVault(undefined)}
+            vault={vault}
+            balance={balance}
+          />
         )}
       </header>
     </div>

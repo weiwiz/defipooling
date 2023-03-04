@@ -9,21 +9,24 @@ import {
   usePrepareContractWrite,
 } from "wagmi";
 import { VaultInfo } from "./VaultLine";
+import PoolerL2ABI from "../abis/PoolerL2.json";
 
 const ActionModal = ({
   close,
   vault,
+  balance,
 }: {
   close: () => void;
   vault: VaultInfo;
+  balance?: string;
 }) => {
   const { asset, protocol, tvl, apy } = vault;
   const [tab, setTab] = useState("deposit");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("0");
   const [poolingFee, setPoolingFee] = useState(0);
   const { address } = useAccount();
   const { chain, chains } = useNetwork();
-  const { data, error, isLoading } = useContractRead({
+  const { data } = useContractRead({
     address: "0x2c852e740B62308c46DD29B982FBb650D063Bd07",
     abi: erc20ABI,
     functionName: "allowance",
@@ -31,13 +34,33 @@ const ActionModal = ({
     chainId: chain?.id,
   });
   const [allowance, setAllowance] = useState("");
+
+  // Transaction to approve aUSDC
   const { config } = usePrepareContractWrite({
-    address: "0xecb504d39723b0be0e3a9aa33d646642d1051ee1",
+    address: "0x2c852e740B62308c46DD29B982FBb650D063Bd07",
     abi: erc20ABI,
     functionName: "approve",
     args: ["0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e", constants.MaxUint256],
   });
-  const { write } = useContractWrite(config);
+  const approve = useContractWrite(config);
+
+  // Transaction to deposit aUSDC
+  const prepareDeposit = usePrepareContractWrite({
+    address: "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e",
+    abi: PoolerL2ABI.abi,
+    functionName: "deposit",
+    args: [amount === "" ? "0" : utils.parseUnits(amount, 6)],
+  });
+  const deposit = useContractWrite(prepareDeposit.config);
+
+  // Transaction to wthdraw pUSD (receipt token of Pooler L2)
+  const prepareWithdraw = usePrepareContractWrite({
+    address: "0x2c852e740B62308c46DD29B982FBb650D063Bd07",
+    abi: PoolerL2ABI.abi,
+    functionName: "cancelDeposit",
+    args: [utils.parseUnits(amount, 6)],
+  });
+  const withdraw = useContractWrite(prepareWithdraw.config);
 
   const handleInput = (amount: string) => {
     if (Number.isNaN(parseFloat(amount))) {
@@ -51,6 +74,12 @@ const ActionModal = ({
   useEffect(() => {
     if (data) setAllowance(data.toString());
   }, [data]);
+
+  useEffect(() => {
+    if (approve.isSuccess) {
+      setAllowance("1");
+    }
+  }, [approve.isSuccess]);
 
   return (
     <div
@@ -93,9 +122,14 @@ const ActionModal = ({
                 value={amount}
                 onChange={(e) => handleInput(e.target.value)}
               />
-              <p className="mb-8 cursor-pointer text-right text-sm underline">
-                DAI Balance: 42
-              </p>
+              {balance && (
+                <p
+                  onClick={() => setAmount(utils.formatUnits(balance, 6))}
+                  className="mb-8 cursor-pointer text-right text-sm underline"
+                >
+                  USDC Balance: {utils.formatUnits(balance, 6)}
+                </p>
+              )}
             </div>
 
             <div className="m-auto mt-8 flex w-11/12 justify-between border-t border-gray-300 pt-3 font-bold">
@@ -108,7 +142,10 @@ const ActionModal = ({
                 {poolingFee} {asset}
               </p>
             </div>
-            <button className="my-8 w-11/12 rounded-lg border py-2">
+            <button
+              onClick={() => deposit.write?.()}
+              className="my-8 w-11/12 rounded-lg border py-2"
+            >
               {tab === "deposit" ? "Deposit" : "Withdraw"}
             </button>
           </div>
@@ -118,7 +155,7 @@ const ActionModal = ({
               You need to approve USDC spending on this dapp
             </p>
             <button
-              onClick={() => write?.()}
+              onClick={() => approve.write?.()}
               className="my-8 w-11/12 rounded-lg border py-2"
             >
               Approve
