@@ -83,20 +83,20 @@ function App() {
     if (balance) setCurrent(utils.formatUnits(balance, 6));
   }, [balance]);
 
-  useEffect(() => {
-    // Warning: Axelar USDC isn't in the Cypher API, so we're using MATIC
-    //          for now even though the user needs Axelar USDC
-    //@ts-ignore
-    window.Cypher({
-      address,
-      targetChainIdHex: "0x13881",
-      requiredTokenBalance: 0,
-      isTestnet: true,
-      callBack: () => {
-        console.log("callBack called");
-      },
-    });
-  }, [address]);
+  // useEffect(() => {
+  //   // Warning: Axelar USDC isn't in the Cypher API, so we're using MATIC
+  //   //          for now even though the user needs Axelar USDC
+  //   //@ts-ignore
+  //   window.Cypher({
+  //     address,
+  //     targetChainIdHex: "0x13881",
+  //     requiredTokenBalance: 0,
+  //     isTestnet: true,
+  //     callBack: () => {
+  //       console.log("callBack called");
+  //     },
+  //   });
+  // }, [address]);
 
   const sortVaults = (attr: string) => {
     switch (attr) {
