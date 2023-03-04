@@ -5,14 +5,17 @@ import ActionModal from "./components/ActionModal";
 import TokenLine from "./components/TokenLine";
 import ConnectButtonWrapper from "./components/ConnectButton";
 import Histogram from "react-chart-histogram";
+import { utils } from "ethers";
+import { useAccount } from "wagmi";
 
 function App() {
+  const { address } = useAccount();
   const [vaults, setVaults] = useState<VaultInfo[]>([
     { asset: "USDC", protocol: "Flux Finance", tvl: "6.98M", apy: 3.56 },
     { asset: "USDT", protocol: "Compound V2", tvl: "143.76M", apy: 2.23 },
   ]);
   const [vault, setVault] = useState<VaultInfo | undefined>(undefined);
-  const [balance, setBalance] = useState<number>();
+  const [balance, setBalance] = useState<string>();
   const [age, setAge] = useState("25");
   const [current, setCurrent] = useState("0");
   const [future, setFuture] = useState("200");
@@ -51,7 +54,7 @@ function App() {
     const x = parseFloat(current);
     const y = parseFloat(future);
     const n = years * 12;
-    const p = 0.05 / 12;
+    const p = vaults[1].apy / 100 / 12;
     const FV =
       ((y * ((1 + p / 12) ^ (n - 1)) * (1 + p / 12)) / (p / 12) +
         x * (1 + p / 12)) ^
@@ -75,6 +78,25 @@ function App() {
     setLabels(newLabels);
     setGains(newGains);
   }, [age, current, future]);
+
+  useEffect(() => {
+    if (balance) setCurrent(utils.formatUnits(balance, 6));
+  }, [balance]);
+
+  useEffect(() => {
+    //@ts-ignore
+    window.Cypher({
+      address,
+      targetChainIdHex: "0x13881",
+      requiredTokenBalance: 0,
+      requiredTokenContractAddress:
+        "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
+      isTestnet: true,
+      callBack: () => {
+        console.log("callBack called");
+      },
+    });
+  }, []);
 
   const sortVaults = (attr: string) => {
     switch (attr) {
@@ -178,10 +200,11 @@ function App() {
         </section>
         <section className="m-auto my-12 rounded-lg border border-gray-300 bg-white shadow-sm md:w-3/5">
           <p className="mt-3 ml-3 text-xl">Simulate retirement</p>
-          {balance !== 0 && (
+          {balance !== "0" && (
             <p className="ml-3 mt-3 text-2xl">
-              With a balance of {balance} USDC, you can already prepare your
-              retirement.
+              With a balance of{" "}
+              {balance && utils.formatUnits(balance.toString(), 6)} USDC, you
+              can already prepare your retirement.
             </p>
           )}
           <p className="ml-3 mt-3 text-2xl">
@@ -222,6 +245,10 @@ function App() {
             />
           </div>
 
+          <p className="mt-3 ml-3 text-2xl">
+            By investing the the Flux Finance Vault currently yielding 3.56%,
+            you'll get this:
+          </p>
           <div className="m-auto w-fit text-xl">
             {labels.map((label, index) => (
               <p className="mb-1">
