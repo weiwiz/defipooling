@@ -11,8 +11,21 @@ import { useAccount } from "wagmi";
 function App() {
   const { address } = useAccount();
   const [vaults, setVaults] = useState<VaultInfo[]>([
-    { asset: "USDC", protocol: "Flux Finance", tvl: "6.98M", apy: 3.56 },
-    { asset: "USDT", protocol: "Compound V2", tvl: "143.76M", apy: 2.23 },
+    { asset: "USDC", protocol: "Demo", tvl: "0", apy: 3, active: true },
+    {
+      asset: "USDC",
+      protocol: "Flux Finance",
+      tvl: "6.98M",
+      apy: 3.56,
+      active: false,
+    },
+    {
+      asset: "USDT",
+      protocol: "Compound V2",
+      tvl: "143.76M",
+      apy: 2.23,
+      active: false,
+    },
   ]);
   const [vault, setVault] = useState<VaultInfo | undefined>(undefined);
   const [balance, setBalance] = useState<string>();
