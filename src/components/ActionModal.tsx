@@ -55,10 +55,10 @@ const ActionModal = ({
 
   // Transaction to wthdraw pUSD (receipt token of Pooler L2)
   const prepareWithdraw = usePrepareContractWrite({
-    address: "0x2c852e740B62308c46DD29B982FBb650D063Bd07",
+    address: "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e",
     abi: PoolerL2ABI.abi,
     functionName: "cancelDeposit",
-    args: [utils.parseUnits(amount, 6)],
+    args: [],
   });
   const withdraw = useContractWrite(prepareWithdraw.config);
 
@@ -143,7 +143,11 @@ const ActionModal = ({
               </p>
             </div>
             <button
-              onClick={() => deposit.write?.()}
+              onClick={
+                tab === "deposit"
+                  ? () => deposit.write?.()
+                  : () => withdraw.write?.()
+              }
               className="my-8 w-11/12 rounded-lg border py-2"
             >
               {tab === "deposit" ? "Deposit" : "Withdraw"}
