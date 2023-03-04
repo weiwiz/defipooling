@@ -12,6 +12,7 @@ import tokens from "../tokens.json";
 
 interface ITokenLine {
   asset: string;
+  covalentName: string;
   sendBalance: (balance: string) => void;
 }
 
@@ -24,7 +25,7 @@ const getTokenFromName = (name: string): Token | undefined => {
   return tokens.find((token: Token) => token.name === name);
 };
 
-const TokenLine = ({ asset, sendBalance }: ITokenLine) => {
+const TokenLine = ({ asset, sendBalance, covalentName }: ITokenLine) => {
   const { address } = useAccount();
   const [balance, setBalance] = useState<string>("");
 
@@ -47,7 +48,10 @@ const TokenLine = ({ asset, sendBalance }: ITokenLine) => {
       }
     );
 
-    setBalance(res.data.data.items[1].balance);
+    const tmp = res.data.data.items.find(
+      (token: any) => token.contract_name === covalentName
+    );
+    setBalance(tmp.balance);
   };
 
   return (

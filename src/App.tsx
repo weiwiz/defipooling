@@ -194,7 +194,11 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              <TokenLine asset="USDC" sendBalance={setBalance} />
+              <TokenLine
+                asset="USDC"
+                sendBalance={setBalance}
+                covalentName="Axelar Wrapped aUSDC"
+              />
             </tbody>
           </table>
         </section>
