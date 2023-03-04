@@ -84,19 +84,19 @@ function App() {
   }, [balance]);
 
   useEffect(() => {
+    // Warning: Axelar USDC isn't in the Cypher API, so we're using MATIC
+    //          for now even though the user needs Axelar USDC
     //@ts-ignore
     window.Cypher({
       address,
       targetChainIdHex: "0x13881",
       requiredTokenBalance: 0,
-      requiredTokenContractAddress:
-        "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
       isTestnet: true,
       callBack: () => {
         console.log("callBack called");
       },
     });
-  }, []);
+  }, [address]);
 
   const sortVaults = (attr: string) => {
     switch (attr) {
