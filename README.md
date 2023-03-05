@@ -54,7 +54,7 @@ GateL2: 0xf584d6b98aE9cA1dAD0d0b17422beEeF8745C1E7
 
 **Roadmap**
 
-With Chainlink Functions, we could monitor the gas price on the L1 to warn the bridgor on-chain before they launch the bus. We could send a JavaScript script that fetches the gas price in UDSC to a Chainlink Functions contract and then get that price on-chain with an oracle contract.
+With Chainlink Functions, monitor the gas price on the L1 to warn the bridgor on-chain before they launch the bus. Send a JavaScript script that fetches the gas price in UDSC to a Chainlink Functions contract and then get that price on-chain with an oracle contract.
 
 Use native Scroll and Base bridge
 
