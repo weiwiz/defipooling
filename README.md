@@ -43,3 +43,15 @@ PoolerL2: 0xdf004020f283b46c40ee67917d8e9468c5c652e4
 GateL2: 0x935952478e46ea2cc65c87a9187d3d2f3dd05c24
 
 But we also deployed the **PoolerL2** on Scroll and Base without the **GateL2** because the bridge we used for this hackathon was not available on these L2s ; but we're eager to make them fully functional.
+
+**Base Goerli**
+
+PoolerL2: 0x2B4446406Cf12aE8D5dc4E14Edd1fc06cE6f9815
+
+GateL2 (WIP): 0x014Cc34DfFe4Ed166E8Cd2f6f78fFDAF0bdEba62
+
+**Scroll Alpha**
+
+PoolerL2: 0x8d7F472B95410F2e18A4348802a79e4d2ed76398
+
+GateL2: 0xf584d6b98aE9cA1dAD0d0b17422beEeF8745C1E7
