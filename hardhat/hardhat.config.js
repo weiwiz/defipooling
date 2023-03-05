@@ -20,6 +20,14 @@ module.exports = {
     mumbai: {
       url: "https://polygon-testnet.public.blastapi.io",
       accounts: [process.env.PKEY]
+    },
+    base: {
+      url: "https://goerli.base.org/",
+      accounts: [process.env.PKEY]
+    },
+    scroll: {
+      url: "https://alpha-rpc.scroll.io/l2",
+      accounts: [process.env.PKEY]
     }
   }
 }
