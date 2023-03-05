@@ -15,10 +15,12 @@ const ActionModal = ({
   close,
   vault,
   balance,
+  setMessage,
 }: {
   close: () => void;
   vault: VaultInfo;
   balance?: string;
+  setMessage?: (msg: string) => void;
 }) => {
   const { asset, protocol, tvl, apy } = vault;
   const [tab, setTab] = useState("deposit");
@@ -62,6 +64,15 @@ const ActionModal = ({
   });
   const withdraw = useContractWrite(prepareWithdraw.config);
 
+  // Transaction to wthdraw pUSD (receipt token of Pooler L2)
+  const prepareLaunchBus = usePrepareContractWrite({
+    address: "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e",
+    abi: PoolerL2ABI.abi,
+    functionName: "launchBus",
+    args: [],
+  });
+  const launchBus = useContractWrite(prepareLaunchBus.config);
+
   const handleInput = (amount: string) => {
     if (Number.isNaN(parseFloat(amount))) {
       setAmount("");
@@ -79,7 +90,14 @@ const ActionModal = ({
     if (approve.isSuccess) {
       setAllowance("1");
     }
-  }, [approve.isSuccess]);
+
+    if (deposit.isSuccess && setMessage) {
+      setMessage(
+        `Your funds are being deposited, you can check the status here:\nhttps://mumbai.polygonscan.com/tx/${deposit.data?.hash}`
+      );
+      close();
+    }
+  }, [approve.isSuccess, deposit.isSuccess]);
 
   return (
     <div
@@ -110,48 +128,69 @@ const ActionModal = ({
           >
             Withdraw
           </p>{" "}
+          <p
+            className={`cursor-pointer rounded-lg py-2 px-16 hover:bg-gray-300/70 ${
+              tab === "launchBus" ? "bg-gray-300/70 font-bold" : ""
+            }`}
+            onClick={() => setTab("launchBus")}
+          >
+            Launch Bus
+          </p>{" "}
         </div>
 
         {allowance !== "0" ? (
           <div>
-            <div className="m-auto w-11/12">
-              <input
-                className="mt-6 w-full rounded-lg border border-gray-300 bg-[#79797B]/20 p-3"
-                type="text"
-                placeholder="0"
-                value={amount}
-                onChange={(e) => handleInput(e.target.value)}
-              />
-              {balance && (
-                <p
-                  onClick={() => setAmount(utils.formatUnits(balance, 6))}
-                  className="mb-8 cursor-pointer text-right text-sm underline"
-                >
-                  USDC Balance: {utils.formatUnits(balance, 6)}
-                </p>
-              )}
-            </div>
+            {tab !== "launchBus" ? (
+              <div>
+                <div className="m-auto w-11/12">
+                  <input
+                    className="mt-6 w-full rounded-lg border border-gray-300 bg-[#79797B]/20 p-3"
+                    type="text"
+                    placeholder="0"
+                    value={amount}
+                    onChange={(e) => handleInput(e.target.value)}
+                  />
+                  {balance && (
+                    <p
+                      onClick={() => setAmount(utils.formatUnits(balance, 6))}
+                      className="mb-8 cursor-pointer text-right text-sm underline"
+                    >
+                      USDC Balance: {utils.formatUnits(balance, 6)}
+                    </p>
+                  )}
+                </div>
 
-            <div className="m-auto mt-8 flex w-11/12 justify-between border-t border-gray-300 pt-3 font-bold">
-              <p>Current APY</p>
-              <p>{apy}%</p>
-            </div>
-            <div className="m-auto flex w-11/12 justify-between font-bold">
-              <p>Pooling fees</p>
-              <p>
-                {poolingFee} {asset}
-              </p>
-            </div>
-            <button
-              onClick={
-                tab === "deposit"
-                  ? () => deposit.write?.()
-                  : () => withdraw.write?.()
-              }
-              className="my-8 w-11/12 rounded-lg border py-2"
-            >
-              {tab === "deposit" ? "Deposit" : "Withdraw"}
-            </button>
+                <div className="m-auto mt-8 flex w-11/12 justify-between border-t border-gray-300 pt-3 font-bold">
+                  <p>Current APY</p>
+                  <p>{apy}%</p>
+                </div>
+                <div className="m-auto flex w-11/12 justify-between font-bold">
+                  <p>Pooling fees</p>
+                  <p>
+                    {poolingFee} {asset}
+                  </p>
+                </div>
+                <button
+                  onClick={
+                    tab === "deposit"
+                      ? () => deposit.write?.()
+                      : () => withdraw.write?.()
+                  }
+                  className="my-8 w-11/12 rounded-lg border py-2"
+                >
+                  {tab === "deposit" ? "Deposit" : "Withdraw"}
+                </button>
+              </div>
+            ) : (
+              <div>
+                <button
+                  onClick={() => launchBus.write?.()}
+                  className="my-8 w-11/12 rounded-lg border py-2"
+                >
+                  Launch
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div>

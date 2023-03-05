@@ -34,6 +34,7 @@ function App() {
   const [future, setFuture] = useState("200");
   const [gains, setGains] = useState<number[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
+  const [message, setMessage] = useState("");
 
   const handleAge = (newAge: string) => {
     if (isNaN(parseInt(newAge))) {
@@ -144,6 +145,11 @@ function App() {
         <div className="pt-3 text-center">
           <ConnectButtonWrapper />
         </div>
+        {message && (
+          <p className="m-auto mt-12 w-fit rounded-lg bg-green-500 p-3 font-bold text-white">
+            {message}
+          </p>
+        )}
         <section className="m-auto mt-12 rounded-lg border border-gray-300 bg-white shadow-sm md:w-3/5">
           <p className="mt-3 ml-3 text-xl">DeFi Vaults</p>
           <table className="w-full table-auto text-center">
@@ -282,6 +288,7 @@ function App() {
             close={() => setVault(undefined)}
             vault={vault}
             balance={balance}
+            setMessage={setMessage}
           />
         )}
       </header>
