@@ -38,7 +38,7 @@ contract PoolerL2 is ERC20, Ownable {
     }
 
     function decimals() public pure override returns (uint8) {
-        return 8;
+        return 6;
     }
 
     modifier notDuringRide() {
