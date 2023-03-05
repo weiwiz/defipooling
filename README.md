@@ -55,3 +55,16 @@ GateL2 (WIP): 0x014Cc34DfFe4Ed166E8Cd2f6f78fFDAF0bdEba62
 PoolerL2: 0x8d7F472B95410F2e18A4348802a79e4d2ed76398
 
 GateL2: 0xf584d6b98aE9cA1dAD0d0b17422beEeF8745C1E7
+
+### Deployment
+
+You'll need a `.env` that has:
+
+```
+REACT_APP_ALCHEMY_KEY=<alchemy key>
+REACT_APP_COVALENT_API=<covalent key>
+```
+
+You can `yarn install`, then `yarn start`.
+
+We hope you enjoy our project!
