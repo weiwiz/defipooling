@@ -11,6 +11,8 @@ import {
 import { VaultInfo } from "./VaultLine";
 import PoolerL2ABI from "../abis/PoolerL2.json";
 
+const poolerL2 = "0xdf004020f283b46c40ee67917d8e9468c5c652e4";
+
 const ActionModal = ({
   close,
   vault,
@@ -32,7 +34,7 @@ const ActionModal = ({
     address: "0x2c852e740B62308c46DD29B982FBb650D063Bd07",
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address!, "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e"], // 2nd arg is PoolerL2
+    args: [address!, poolerL2], // 2nd arg is PoolerL2
     chainId: chain?.id,
   });
   const [allowance, setAllowance] = useState("");
@@ -42,13 +44,13 @@ const ActionModal = ({
     address: "0x2c852e740B62308c46DD29B982FBb650D063Bd07",
     abi: erc20ABI,
     functionName: "approve",
-    args: ["0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e", constants.MaxUint256],
+    args: [poolerL2, constants.MaxUint256],
   });
   const approve = useContractWrite(config);
 
   // Transaction to deposit aUSDC
   const prepareDeposit = usePrepareContractWrite({
-    address: "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e",
+    address: poolerL2,
     abi: PoolerL2ABI.abi,
     functionName: "deposit",
     args: [amount === "" ? "0" : utils.parseUnits(amount, 6)],
@@ -57,7 +59,7 @@ const ActionModal = ({
 
   // Transaction to wthdraw pUSD (receipt token of Pooler L2)
   const prepareWithdraw = usePrepareContractWrite({
-    address: "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e",
+    address: poolerL2,
     abi: PoolerL2ABI.abi,
     functionName: "cancelDeposit",
     args: [],
@@ -66,10 +68,13 @@ const ActionModal = ({
 
   // Transaction to wthdraw pUSD (receipt token of Pooler L2)
   const prepareLaunchBus = usePrepareContractWrite({
-    address: "0x0f5b9D9b2425C0Df9f5936C57656DEd82CdD258e",
+    address: poolerL2,
     abi: PoolerL2ABI.abi,
     functionName: "launchBus",
     args: [],
+    overrides: {
+      value: utils.parseEther("0.2"),
+    },
   });
   const launchBus = useContractWrite(prepareLaunchBus.config);
 
@@ -183,6 +188,9 @@ const ActionModal = ({
               </div>
             ) : (
               <div>
+                <p className="mt-12">
+                  You need at least 0.4 MATIC to launch the bus.
+                </p>
                 <button
                   onClick={() => launchBus.write?.()}
                   className="my-8 w-11/12 rounded-lg border py-2"
