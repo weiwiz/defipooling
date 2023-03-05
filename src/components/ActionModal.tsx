@@ -193,6 +193,7 @@ const ActionModal = ({
                 </p>
                 <button
                   onClick={() => launchBus.write?.()}
+                  disabled={true}
                   className="my-8 w-11/12 rounded-lg border py-2"
                 >
                   Launch
